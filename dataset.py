@@ -42,8 +42,6 @@ class GraphPair(Dataset):
 if __name__ == "__main__":
     benchmark = Benchmark(name="WillowObject", sets="train")
     train_data = GraphPair(benchmark, sets="train", batch_size=32, shuffle=True, drop_last=True)
-    # print(train_data[0])
-    # print(len(train_data))
     
     for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids) in enumerate(train_data):
         print(img1.shape)
