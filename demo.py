@@ -40,6 +40,10 @@ if __name__ == "__main__":
     
     model = GMNet()
     X = model(torch_img1, torch_img2, kpts1, kpts2, A1, A2)
-    print(X)
+    X_gt = torch.eye(X.shape[0])
+    print(X.shape)
+    print(X_gt.shape)
+    print(torch_img1)
+    print(kpts1)
     
     
