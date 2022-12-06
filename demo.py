@@ -44,6 +44,6 @@ if __name__ == "__main__":
     print(X.shape)
     print(X_gt.shape)
     print(torch_img1)
-    print(kpts1)
+    print(kpts1.shape)
     
     
