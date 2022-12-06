@@ -2,7 +2,7 @@ from pygmtools.dataset import WillowObject
 from pygmtools.benchmark import Benchmark
 from jittor.dataset import Dataset
 import jittor as jt
-from gmutils import delaunay_triangulation
+from utils.gmfunctions import delaunay_triangulation
 
 
 class GraphPair(Dataset):

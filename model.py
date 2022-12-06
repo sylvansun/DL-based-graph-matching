@@ -1,7 +1,7 @@
 import jittor as jt
 import pygmtools as pygm
 from jittor import models
-from gmutils import l2norm
+from utils.gmfunctions import l2norm
 pygm.BACKEND = 'jittor'
 
 class CNNNet(jt.nn.Module):
