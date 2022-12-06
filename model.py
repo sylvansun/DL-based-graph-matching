@@ -43,8 +43,17 @@ class GMNet(jt.nn.Module):
         # assign node features
         rounded_kpts1 = jt.round(kpts1).long()
         rounded_kpts2 = jt.round(kpts2).long()
-        node1 = feat1_upsample[0, :, rounded_kpts1[0], rounded_kpts1[1]].t()  # shape: NxC
-        node2 = feat2_upsample[0, :, rounded_kpts2[0], rounded_kpts2[1]].t()  # shape: NxC
+        batch_size = feat1_upsample.shape[0]
+        # print("hey",feat1_upsample.shape)
+        # print(rounded_kpts1.shape)
+        node1, node2 = jt.zeros((batch_size, 10, 1024)), jt.zeros((batch_size, 10, 1024))
+        for i in range(batch_size):
+            node1[i] = feat1_upsample[i, :, rounded_kpts1[i][0], rounded_kpts1[i][1]].t()
+            node2[i] = feat2_upsample[i, :, rounded_kpts2[i][0], rounded_kpts2[i][1]].t()
+        
+        # node1 = feat1_upsample[0, :, rounded_kpts1[0], rounded_kpts1[1]].t()  # shape: NxC
+        # node2 = feat2_upsample[0, :, rounded_kpts2[0], rounded_kpts2[1]].t()  # shape: NxC
+        # print(node1.shape)
 
         # PCA-GM matching layers
         X = pygm.pca_gm(node1, node2, A1, A2, network=self.gm_net) # the network object is reused

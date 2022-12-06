@@ -6,7 +6,14 @@ from utils.gmfunctions import delaunay_triangulation
 
 
 class GraphPair(Dataset):
-    def __init__(self, benchmark, sets="train", num_classes=5, obj_resize=(256,256), batch_size=32, shuffle=True, drop_last=True):
+    def __init__(self, 
+                 benchmark=Benchmark(name="WillowObject", sets="train"),
+                 sets="train", 
+                 num_classes=5, 
+                 obj_resize=(256,256), 
+                 batch_size=32, 
+                 shuffle=True, 
+                 drop_last=True):
         super(GraphPair, self).__init__(batch_size=batch_size, shuffle=shuffle, drop_last=drop_last)
         self.data = []
         self.label = []
@@ -19,10 +26,10 @@ class GraphPair(Dataset):
         self.set_attrs(total_len=len(self.data))
         
     def load_data(self):
-        graph_pair_list = benchmark.get_id_combination()[0]
+        graph_pair_list = self.benchmark.get_id_combination()[0]
         for i in range(self.num_classes):
             for elem in graph_pair_list[i]:
-                data_list, perm_mat_dict, ids = benchmark.get_data(list(elem), shuffle=True)
+                data_list, perm_mat_dict, ids = self.benchmark.get_data(list(elem), shuffle=True)
                 img1, img2 = data_list[0]["img"], data_list[1]["img"]
                 img1, img2 = jt.float32(img1).permute(2, 0, 1) / 256, jt.float32(img2).permute(2, 0, 1) / 256
                 kpts1 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[0]["kpts"]]).transpose()
@@ -43,8 +50,7 @@ class GraphPair(Dataset):
 
 
 if __name__ == "__main__":
-    benchmark = Benchmark(name="WillowObject", sets="train")
-    train_data = GraphPair(benchmark, sets="train", batch_size=32, shuffle=True, drop_last=True)
+    train_data = GraphPair(sets="train", batch_size=32, shuffle=True, drop_last=True)
     
     for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, label) in enumerate(train_data):
         print(img1.shape)
