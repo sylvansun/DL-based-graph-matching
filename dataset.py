@@ -9,6 +9,7 @@ class GraphPair(Dataset):
     def __init__(self, benchmark, sets="train", num_classes=5, obj_resize=(256,256), batch_size=32, shuffle=True, drop_last=True):
         super(GraphPair, self).__init__(batch_size=batch_size, shuffle=shuffle, drop_last=drop_last)
         self.data = []
+        self.label = []
         self.benchmark = benchmark
         self.sets = sets
         self.obj_resize = obj_resize
@@ -27,14 +28,16 @@ class GraphPair(Dataset):
                 kpts1 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[0]["kpts"]]).transpose()
                 kpts2 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[1]["kpts"]]).transpose()
                 A1, A2 = delaunay_triangulation(kpts1), delaunay_triangulation(kpts2)
-                self.data.append((img1, img2, kpts1, kpts2, A1, A2, perm_mat_dict, ids))
+                self.label.append(perm_mat_dict[(0,1)].toarray())
+                self.data.append((img1, img2, kpts1, kpts2, A1, A2, ids))
     
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, index):
         data_item = self.data[index]
-        return data_item[0], data_item[1], data_item[2], data_item[3], data_item[4], data_item[5], data_item[7]
+        label_item = self.label[index]
+        return data_item[0], data_item[1], data_item[2], data_item[3], data_item[4], data_item[5], data_item[6], label_item
                 
         
 
@@ -43,13 +46,14 @@ if __name__ == "__main__":
     benchmark = Benchmark(name="WillowObject", sets="train")
     train_data = GraphPair(benchmark, sets="train", batch_size=32, shuffle=True, drop_last=True)
     
-    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids) in enumerate(train_data):
+    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, label) in enumerate(train_data):
         print(img1.shape)
         print(img2.shape)
         print(kpts1.shape)
         print(kpts2.shape)
         print(A1.shape)
         print(A2.shape)
-        print(ids)
+        print(label.shape)
+        print(len(ids[0]), len(ids[1]))
         break
     
