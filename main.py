@@ -40,7 +40,7 @@ def val(model, test_loader, epoch_idx, file):
         test_loss.append(loss.item())
         print(batch_idx)
         for i in range(batch_size):
-            pred_dict = generate_pred_dict(outputs[i], ids[0][i], ids[1][i], cls[i])
+            pred_dict = generate_pred_dict(outputs[i].numpy(), ids[0][i], ids[1][i], cls[i])
             pred_list.append(pred_dict)
     file.write(f"Test Epoch: {epoch_idx} \t Predictions: {pred_list} \n")
     return pred_list, np.mean(test_loss)
