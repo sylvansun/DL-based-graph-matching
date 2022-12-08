@@ -19,13 +19,12 @@ def train(model, train_loader, optimizer, epoch_idx, file):
         loss = pygm.utils.permutation_loss(outputs, labels)
         optimizer.step(loss)
         train_loss.append(loss.item())
-        print(loss.item())
-        if batch_idx % 100 == 0:
+        print("Train epoch: {}  {:.2f}%\tLoss:{:.9f}\n".format(
+                    epoch_idx, 100 * batch_idx * batch_size / num_data, loss.item()))
+        if batch_idx % 10 == 0:
             file.write(
-                "Train epoch: {}  {:.2f}%\tLoss:{:.6f}\n".format(
-                    epoch_idx, 100 * batch_idx * batch_size / num_data, loss.item()
-                )
-            )
+                "Train epoch: {}  {:.2f}%\tLoss:{:.9f}\n".format(
+                    epoch_idx, 100 * batch_idx * batch_size / num_data, loss.item()))
     return np.mean(train_loss)
 
 def val(model, test_loader, epoch_idx, file):
@@ -64,9 +63,8 @@ def main(args):
     file.write(f"{folder_name}\n")
     for epoch_idx in range(1, num_epoch + 1):
         train(model, train_loader, optim, epoch_idx, file)
-        if epoch_idx % 10 == 0:
-            prediction,_ = val(model, test_loader, epoch_idx, file)
-            test_loader.benchmark.eval(prediction, test_loader.name_classes, verbose=True)
+        prediction,_ = val(model, test_loader, epoch_idx, file)
+        test_loader.benchmark.eval(prediction, test_loader.name_classes, verbose=True)
 
 
 if __name__ == "__main__":
