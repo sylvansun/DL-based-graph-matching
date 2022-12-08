@@ -18,5 +18,5 @@ def test_dataloading(dataset):
         break
 
 def generate_pred_dict(output, ids1, ids2, cls):
-    return {'ids': (ids1, ids2), 'cls': cls, 'permmat': output}
+    return {'ids': (ids1, ids2), 'cls': cls, 'perm_mat': output}
     

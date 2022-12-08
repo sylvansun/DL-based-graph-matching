@@ -32,12 +32,13 @@ def val(model, test_loader, epoch_idx, file):
 
     test_loss = []
     pred_list = []
-    for _, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, labels) in enumerate(test_loader):
+    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, labels) in enumerate(test_loader):
         outputs = model(img1, img2, kpts1, kpts2, A1, A2)
         outputs = pygm.hungarian(outputs)
         batch_size = outputs.shape[0]
         loss = pygm.utils.permutation_loss(outputs, labels)
         test_loss.append(loss.item())
+        print(batch_idx)
         for i in range(batch_size):
             pred_dict = generate_pred_dict(outputs[i], ids[0][i], ids[1][i], cls[i])
             pred_list.append(pred_dict)
