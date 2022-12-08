@@ -7,7 +7,6 @@ from utils.gmfunctions import delaunay_triangulation
 
 class GraphPair(Dataset):
     def __init__(self, 
-                 benchmark=Benchmark(name="WillowObject", sets="train"),
                  sets="train", 
                  num_classes=5, 
                  obj_resize=(256,256), 
@@ -17,17 +16,26 @@ class GraphPair(Dataset):
         super(GraphPair, self).__init__(batch_size=batch_size, shuffle=shuffle, drop_last=drop_last)
         self.data = []
         self.label = []
-        self.benchmark = benchmark
         self.sets = sets
+        self.benchmark = Benchmark(name="WillowObject", sets=self.sets)
         self.obj_resize = obj_resize
         self.batch_size = batch_size
         self.num_classes = num_classes
-        self.load_data()
+        self.name_classes = ["Car", "Duck", "Face", "Motorbike", "Winebottle"]
+        self.load_data_list()
         self.set_attrs(total_len=len(self.data))
         
+    def load_data_list(self):
+        graph_pair_list = self.benchmark.get_id_combination()[0]
+        for i in range(self.num_classes):
+            cur_cls = self.name_classes[i]
+            for elem in graph_pair_list[i]:
+                self.data.append((list(elem), cur_cls))
+    
     def load_data(self):
         graph_pair_list = self.benchmark.get_id_combination()[0]
         for i in range(self.num_classes):
+            cur_cls = self.name_classes[i]
             for elem in graph_pair_list[i]:
                 data_list, perm_mat_dict, ids = self.benchmark.get_data(list(elem), shuffle=True)
                 img1, img2 = data_list[0]["img"], data_list[1]["img"]
@@ -36,30 +44,34 @@ class GraphPair(Dataset):
                 kpts2 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[1]["kpts"]]).transpose()
                 A1, A2 = delaunay_triangulation(kpts1), delaunay_triangulation(kpts2)
                 self.label.append(perm_mat_dict[(0,1)].toarray())
-                self.data.append((img1, img2, kpts1, kpts2, A1, A2, ids))
+                self.data.append((img1, img2, kpts1, kpts2, A1, A2, ids, cur_cls))
     
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, index):
-        data_item = self.data[index]
-        label_item = self.label[index]
-        return data_item[0], data_item[1], data_item[2], data_item[3], data_item[4], data_item[5], data_item[6], label_item
+        data_list, perm_mat_dict, ids = self.benchmark.get_data(self.data[index][0], shuffle=True)
+        cls = self.data[index][1] # class name, string
+        img1, img2 = data_list[0]["img"], data_list[1]["img"]
+        img1, img2 = jt.float32(img1).permute(2, 0, 1) / 256, jt.float32(img2).permute(2, 0, 1) / 256
+        kpts1 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[0]["kpts"]]).transpose()
+        kpts2 = jt.float32([(kp["x"], kp["y"]) for kp in data_list[1]["kpts"]]).transpose()
+        A1, A2 = delaunay_triangulation(kpts1), delaunay_triangulation(kpts2)
+        label = perm_mat_dict[(0,1)].toarray()
+        return img1, img2, kpts1, kpts2, A1, A2, ids, cls, label 
                 
-        
-
-
 if __name__ == "__main__":
     train_data = GraphPair(sets="train", batch_size=32, shuffle=True, drop_last=True)
     
-    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, label) in enumerate(train_data):
+    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, label) in enumerate(train_data):
         print(img1.shape)
         print(img2.shape)
         print(kpts1.shape)
         print(kpts2.shape)
         print(A1.shape)
         print(A2.shape)
-        print(label.shape)
+        print(label[0])
         print(len(ids[0]), len(ids[1]))
+        print(len(cls))
         break
     
