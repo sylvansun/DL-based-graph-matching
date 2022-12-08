@@ -3,6 +3,7 @@ from pygmtools.benchmark import Benchmark
 from jittor.dataset import Dataset
 import jittor as jt
 from utils.gmfunctions import delaunay_triangulation
+from utils.tools import test_dataloading, show_dataset_attributes
 
 
 class GraphPair(Dataset):
@@ -60,24 +61,7 @@ class GraphPair(Dataset):
         label = perm_mat_dict[(0,1)].toarray()
         return img1, img2, kpts1, kpts2, A1, A2, ids, cls, label 
 
-def show_dataset_attributes(dataset):
-    print("dataset name: ", dataset.sets)
-    print("benchmark length: ", dataset.benchmark.compute_length())
-    print("dataset length: ", len(dataset))
-    print("number of image in each classes: ", dataset.benchmark.compute_img_num(dataset.name_classes))
-    
-def test_dataloading(dataset):
-    for _, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, label) in enumerate(dataset):
-        print(img1.shape)
-        print(img2.shape)
-        print(kpts1.shape)
-        print(kpts2.shape)
-        print(A1.shape)
-        print(A2.shape)
-        print(label.shape)
-        print(len(ids[0]), len(ids[1]))
-        print(cls)
-        break
+
           
 if __name__ == "__main__":
     train_data = GraphPair(sets="train", batch_size=32, shuffle=True)
