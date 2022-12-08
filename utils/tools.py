@@ -20,3 +20,17 @@ def test_dataloading(dataset):
 def generate_pred_dict(output, ids1, ids2, cls):
     return {'ids': (ids1, ids2), 'cls': cls, 'perm_mat': output}
     
+
+def save_eval_result(result, classes, file):
+    file.write('Matching accuracy')
+    for cls in classes:
+        file.write('{}: {}'.format(cls, 'p = {:.4f}±{:.4f}, r = {:.4f}±{:.4f}, f1 = {:.4f}±{:.4f}, cvg = {:.4f}' \
+                                      .format(result[cls]['precision'], result[cls]['precision_std'],
+                                              result[cls]['recall'], result[cls]['recall_std'], result[cls]['f1'],
+                                              result[cls]['f1_std'], result[cls]['coverage']
+                                              )))
+    file.write('average accuracy: {}'.format('p = {:.4f}±{:.4f}, r = {:.4f}±{:.4f}, f1 = {:.4f}±{:.4f}' \
+                                                .format(result['mean']['precision'], result['mean']['precision_std'],
+                                                        result['mean']['recall'], result['mean']['recall_std'],
+                                                        result['mean']['f1'], result['mean']['f1_std']
+                                                        )))
