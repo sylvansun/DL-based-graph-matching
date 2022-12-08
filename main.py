@@ -13,14 +13,7 @@ def train(model, train_loader, optimizer, epoch_idx, file):
     num_data = len(train_loader)
 
     train_loss = []
-    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, labels) in enumerate(train_loader):
-        # print(img1.shape)
-        # print(img2.shape)
-        # print(kpts1.shape)
-        # print(kpts2.shape)
-        # print(A1.shape)
-        # print(A2.shape)
-        # print(labels.shape)
+    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, _, _, labels) in enumerate(train_loader):
         outputs = model(img1, img2, kpts1, kpts2, A1, A2)
         loss = pygm.utils.permutation_loss(outputs, labels)
         optimizer.step(loss)
@@ -34,6 +27,22 @@ def train(model, train_loader, optimizer, epoch_idx, file):
             )
     return np.mean(train_loss)
 
+def val(model, test_loader, epoch_idx, file):
+    model.eval()
+    num_data = len(test_loader)
+
+    test_loss = []
+    total_correct = 0
+    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, labels) in enumerate(test_loader):
+        outputs = model(img1, img2, kpts1, kpts2, A1, A2)
+        loss = pygm.utils.permutation_loss(outputs, labels)
+        test_loss.append(loss.item())
+        pred = np.argmax(outputs.numpy(), axis=1)
+        total_correct += np.sum(labels.numpy() == pred)
+    total_acc = total_correct / num_data
+    file.write(f"Test Epoch: {epoch_idx} \t Total Acc: {total_acc:.4f}\n")
+    return np.mean(test_loss)
+
 
 def main(args):
     batch_size, learning_rate, weight_decay, num_epoch, debug = (args.bs, args.lr, args.wd, args.ne, args.debug)
@@ -41,6 +50,7 @@ def main(args):
         num_epoch = 1
 
     train_loader = GraphPair(sets="train", batch_size=batch_size)
+    test_loader = GraphPair(sets="test", batch_size=batch_size)
     model = GMNet()
     optim = jt.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
@@ -50,10 +60,10 @@ def main(args):
     file_name = f"./checkpoint/{folder_name}/log.txt"
     file = open(file_name, "w")
     file.write(f"{folder_name}\n")
-    train_losses, test_losses = [], []
     for epoch_idx in range(1, num_epoch + 1):
-        train_loss = train(model, train_loader, optim, epoch_idx, file)
-        train_losses.append(train_loss)
+        train(model, train_loader, optim, epoch_idx, file)
+        val(model, test_loader, epoch_idx, file)
+
 
 if __name__ == "__main__":
     if jt.has_cuda:
