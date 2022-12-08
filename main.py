@@ -67,7 +67,7 @@ def main(args):
         if epoch_idx % 10 == 0:
             prediction,_ = val(model, test_loader, epoch_idx, file)
             result = test_loader.benchmark.eval(prediction, test_loader.name_classes, verbose=True)
-            save_eval_result(result, file)
+            save_eval_result(result, test_loader.name_classes, file)
 
 
 if __name__ == "__main__":
