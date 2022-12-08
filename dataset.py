@@ -59,19 +59,32 @@ class GraphPair(Dataset):
         A1, A2 = delaunay_triangulation(kpts1), delaunay_triangulation(kpts2)
         label = perm_mat_dict[(0,1)].toarray()
         return img1, img2, kpts1, kpts2, A1, A2, ids, cls, label 
-                
-if __name__ == "__main__":
-    train_data = GraphPair(sets="train", batch_size=32, shuffle=True, drop_last=True)
+
+def show_dataset_attributes(dataset):
+    print("benchmark length: ", dataset.benchmark.compute_length())
+    print("dataset length: ", len(dataset))
     
-    for batch_idx, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, label) in enumerate(train_data):
+def test_dataloading(dataset):
+    for _, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, label) in enumerate(dataset):
         print(img1.shape)
         print(img2.shape)
         print(kpts1.shape)
         print(kpts2.shape)
         print(A1.shape)
         print(A2.shape)
-        print(label[0])
+        print(label.shape)
         print(len(ids[0]), len(ids[1]))
-        print(len(cls))
+        print(cls)
         break
+          
+if __name__ == "__main__":
+    train_data = GraphPair(sets="train", batch_size=32, shuffle=True)
+    test_data = GraphPair(sets="test", batch_size=32, shuffle=False)
+    
+    test_dataloading(train_data)
+    test_dataloading(test_data)
+    
+    show_dataset_attributes(train_data)
+    show_dataset_attributes(test_data)
+    
     
