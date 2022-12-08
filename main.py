@@ -5,6 +5,7 @@ import numpy as np
 from model import GMNet
 from dataset import GraphPair
 from utils.parser import make_parser
+from utils.tools import generate_pred_dict
 pygm.BACKEND = 'jittor'
 
 def train(model, train_loader, optimizer, epoch_idx, file):
@@ -30,16 +31,19 @@ def train(model, train_loader, optimizer, epoch_idx, file):
 def val(model, test_loader, epoch_idx, file):
     model.eval()
 
-    batch_size = test_loader.batch_size
     test_loss = []
+    pred_list = []
     for _, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, labels) in enumerate(test_loader):
         outputs = model(img1, img2, kpts1, kpts2, A1, A2)
+        outputs = pygm.hungarian(outputs)
+        batch_size = outputs.shape[0]
         loss = pygm.utils.permutation_loss(outputs, labels)
         test_loss.append(loss.item())
-        pred = np.argmax(outputs.numpy(), axis=1)
-
-    file.write(f"Test Epoch: {epoch_idx} \t Total Acc: \n")
-    return np.mean(test_loss)
+        for i in range(batch_size):
+            pred_dict = generate_pred_dict(outputs[i], ids[0][i], ids[1][i], cls[i])
+            pred_list.append(pred_dict)
+    file.write(f"Test Epoch: {epoch_idx} \t Predictions: {pred_list} \n")
+    return pred_list, np.mean(test_loss)
 
 
 def main(args):
@@ -60,7 +64,9 @@ def main(args):
     file.write(f"{folder_name}\n")
     for epoch_idx in range(1, num_epoch + 1):
         train(model, train_loader, optim, epoch_idx, file)
-        val(model, test_loader, epoch_idx, file)
+        if epoch_idx % 10 == 0:
+            prediction,_ = val(model, test_loader, epoch_idx, file)
+            test_loader.benchmark.eval(prediction, test_loader.name_classes, verbose=True)
 
 
 if __name__ == "__main__":

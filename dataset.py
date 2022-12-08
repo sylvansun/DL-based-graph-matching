@@ -61,7 +61,6 @@ class GraphPair(Dataset):
         label = perm_mat_dict[(0,1)].toarray()
         return img1, img2, kpts1, kpts2, A1, A2, ids, cls, label 
 
-
           
 if __name__ == "__main__":
     train_data = GraphPair(sets="train", batch_size=32, shuffle=True)
