@@ -61,8 +61,10 @@ class GraphPair(Dataset):
         return img1, img2, kpts1, kpts2, A1, A2, ids, cls, label 
 
 def show_dataset_attributes(dataset):
+    print("dataset name: ", dataset.sets)
     print("benchmark length: ", dataset.benchmark.compute_length())
     print("dataset length: ", len(dataset))
+    print("number of image in each classes: ", dataset.benchmark.compute_img_num(dataset.name_classes))
     
 def test_dataloading(dataset):
     for _, (img1, img2, kpts1, kpts2, A1, A2, ids, cls, label) in enumerate(dataset):

@@ -30,5 +30,6 @@ tutorial/
 *.pkl
 *.txt
 data/
+checkpoint/
 
 
