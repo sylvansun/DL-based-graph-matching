@@ -18,6 +18,7 @@ class GraphPair(Dataset):
         self.data = []
         self.label = []
         self.sets = sets
+        self.shuffle = shuffle
         self.benchmark = Benchmark(name="WillowObject", sets=self.sets)
         self.obj_resize = obj_resize
         self.batch_size = batch_size
@@ -51,7 +52,7 @@ class GraphPair(Dataset):
         return len(self.data)
     
     def __getitem__(self, index):
-        data_list, perm_mat_dict, ids = self.benchmark.get_data(self.data[index][0], shuffle=True)
+        data_list, perm_mat_dict, ids = self.benchmark.get_data(self.data[index][0], shuffle=self.shuffle)
         cls = self.data[index][1] # class name, string
         img1, img2 = data_list[0]["img"], data_list[1]["img"]
         img1, img2 = jt.float32(img1).permute(2, 0, 1) / 256, jt.float32(img2).permute(2, 0, 1) / 256
