@@ -51,8 +51,8 @@ def main(args):
     if debug:
         num_epoch = 1
 
-    train_loader = GraphPair(sets="train", batch_size=batch_size)
-    test_loader = GraphPair(sets="test", batch_size=batch_size)
+    train_loader = GraphPair(sets="train", batch_size=batch_size, shuffle=True)
+    test_loader = GraphPair(sets="test", batch_size=batch_size, shuffle=False)
     model = GMNet()
     optim = jt.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
