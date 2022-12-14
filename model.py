@@ -48,8 +48,8 @@ class GMNet(jt.nn.Module):
         # print(rounded_kpts1.shape)
         node1, node2 = jt.zeros((batch_size, 10, 1024)), jt.zeros((batch_size, 10, 1024))
         for i in range(batch_size):
-            node1[i] = feat1_upsample[i, :, rounded_kpts1[i][0], rounded_kpts1[i][1]].t()
-            node2[i] = feat2_upsample[i, :, rounded_kpts2[i][0], rounded_kpts2[i][1]].t()
+            node1[i] = feat1_upsample[i, :, rounded_kpts1[i][1], rounded_kpts1[i][0]].t()
+            node2[i] = feat2_upsample[i, :, rounded_kpts2[i][1], rounded_kpts2[i][0]].t()
         
         # node1 = feat1_upsample[0, :, rounded_kpts1[0], rounded_kpts1[1]].t()  # shape: NxC
         # node2 = feat2_upsample[0, :, rounded_kpts2[0], rounded_kpts2[1]].t()  # shape: NxC
