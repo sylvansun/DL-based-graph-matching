@@ -5,7 +5,6 @@ import jittor as jt
 from utils.gmfunctions import delaunay_triangulation
 from utils.tools import test_dataloading, show_dataset_attributes
 
-
 class GraphPair(Dataset):
     def __init__(self, 
                  sets="train", 
@@ -72,5 +71,4 @@ if __name__ == "__main__":
     
     show_dataset_attributes(train_data)
     show_dataset_attributes(test_data)
-    
     

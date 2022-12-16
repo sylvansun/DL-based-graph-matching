@@ -47,16 +47,16 @@ def val(model, test_loader, epoch_idx, file):
 
 
 def main(args):
-    batch_size, learning_rate, weight_decay, num_epoch, debug = (args.bs, args.lr, args.wd, args.ne, args.debug)
+    batch_size, learning_rate, weight_decay, num_epoch, debug, pretrain = (args.bs, args.lr, args.wd, args.ne, args.debug, args.pretrain)
     if debug:
         num_epoch = 1
 
     train_loader = GraphPair(sets="train", batch_size=batch_size, shuffle=True)
     test_loader = GraphPair(sets="test", batch_size=batch_size, shuffle=False)
-    model = GMNet()
+    model = GMNet(pretrain)
     optim = jt.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-    folder_name = f"bs_{batch_size}_lr_{learning_rate}_wd_{weight_decay}_ne_{num_epoch}"
+    folder_name = f"pre_{pretrain}_bs_{batch_size}_lr_{learning_rate}_wd_{weight_decay}_ne_{num_epoch}"
     if not os.path.exists(f"./checkpoint/{folder_name}"):
         os.mkdir(f"./checkpoint/{folder_name}")
     file_name = f"./checkpoint/{folder_name}/log.txt"

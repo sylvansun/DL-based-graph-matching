@@ -8,6 +8,7 @@ def make_parser():
     parser.add_argument("--wd", type=float, default=1e-4, help="weight decay")
     parser.add_argument("--ne", type=int, default=100, help="number of epochs")
     parser.add_argument("--debug", action="store_true", help="run in debug mode")
+    parser.add_argument("--pretrain", action="store_true", help="use pretrained vgg16 model")
     return parser
 
 if __name__ == "__main__":

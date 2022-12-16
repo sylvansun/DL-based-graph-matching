@@ -17,9 +17,10 @@ class CNNNet(jt.nn.Module):
 
 
 class GMNet(jt.nn.Module):
-    def __init__(self, vgg16_cnn=models.vgg16_bn(True) ,obj_resize=(256,256)):
+    def __init__(self, pretrain=False, obj_resize=(256,256)):
         super(GMNet, self).__init__()
         self.gm_net = pygm.utils.get_network(pygm.pca_gm, pretrain=False) # fetch the network object
+        vgg16_cnn=models.vgg16_bn(pretrained=pretrain)
         self.cnn = CNNNet(vgg16_cnn)
         self.obj_resize = obj_resize
 
@@ -44,8 +45,6 @@ class GMNet(jt.nn.Module):
         rounded_kpts1 = jt.round(kpts1).long()
         rounded_kpts2 = jt.round(kpts2).long()
         batch_size = feat1_upsample.shape[0]
-        # print("hey",feat1_upsample.shape)
-        # print(rounded_kpts1.shape)
         node1, node2 = jt.zeros((batch_size, 10, 1024)), jt.zeros((batch_size, 10, 1024))
         for i in range(batch_size):
             node1[i] = feat1_upsample[i, :, rounded_kpts1[i][1], rounded_kpts1[i][0]].t()
@@ -53,7 +52,6 @@ class GMNet(jt.nn.Module):
         
         # node1 = feat1_upsample[0, :, rounded_kpts1[0], rounded_kpts1[1]].t()  # shape: NxC
         # node2 = feat2_upsample[0, :, rounded_kpts2[0], rounded_kpts2[1]].t()  # shape: NxC
-        # print(node1.shape)
 
         # PCA-GM matching layers
         X = pygm.pca_gm(node1, node2, A1, A2, network=self.gm_net) # the network object is reused
